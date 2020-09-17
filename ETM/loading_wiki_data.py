@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 import os
 
-
+#new comment
 # configurations
 wiki_to_load = 'ar'# 'he' # 'ar'
 articles_amount_limit = 200000
