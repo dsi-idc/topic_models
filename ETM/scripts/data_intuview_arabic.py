@@ -2,10 +2,8 @@
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 import pickle
-import random
 from scipy import sparse
-import itertools
-from scipy.io import savemat, loadmat
+from scipy.io import savemat
 import os
 
 
@@ -25,7 +23,8 @@ max_df = 0.7
 min_df = 0.001  # choose desired value for min_df
 
 # Read stopwords, taken from here - https://github.com/mohataher/arabic-stop-words/blob/master/list.txt
-with open('stops_arabic.txt', 'r', encoding='utf-8') as f:
+with open('C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\git_repository\\'
+          'ETM\\data_prep\\stops_arabic.txt', 'r', encoding='utf-8') as f:
     stops = f.read().split('\n')
 
 # Read data

@@ -1,5 +1,7 @@
-import torch 
 import numpy as np
+import mimetypes
+import gensim
+
 
 def get_topic_diversity(beta, topk):
     num_topics = beta.shape[0]
@@ -10,6 +12,7 @@ def get_topic_diversity(beta, topk):
     n_unique = len(np.unique(list_w))
     TD = n_unique / (topk * num_topics)
     print('Topic diveristy is: {}'.format(TD))
+
 
 def get_document_frequency(data, wi, wj=None):
     if wj is None:
@@ -36,6 +39,7 @@ def get_document_frequency(data, wi, wj=None):
             if wi in doc:
                 D_wi_wj += 1
     return D_wj, D_wi_wj 
+
 
 def get_topic_coherence(beta, data, vocab):
     D = len(data) ## number of docs...data is list of documents
@@ -73,6 +77,7 @@ def get_topic_coherence(beta, data, vocab):
     TC = np.mean(TC) / counter
     print('Topic coherence is: {}'.format(TC))
 
+
 def nearest_neighbors(word, embeddings, vocab):
     vectors = embeddings.data.cpu().numpy() 
     index = vocab.index(word)
@@ -89,3 +94,40 @@ def nearest_neighbors(word, embeddings, vocab):
     nearest_neighbors = mostSimilar[:20]
     nearest_neighbors = [vocab[comp] for comp in nearest_neighbors]
     return nearest_neighbors
+
+
+def prepare_embedding_matrix(emb_data_path, emb_size, vocab, random_seed=1984):
+    vocab_size = len(vocab)
+    mime = mimetypes.guess_type(emb_data_path)
+    np.random.seed(random_seed)
+    # in case the file type is text - we'll treat it as such
+    if mime[0] is not None:
+        vectors = {}
+        with open(emb_data_path, 'rb') as f:
+            for l in f:
+                line = l.decode().split()
+                word = line[0]
+                if word in vocab:
+                    vect = np.array(line[1:]).astype(np.float)
+                    vectors[word] = vect
+        embeddings = np.zeros((vocab_size, emb_size))
+        words_found = 0
+        for i, word in enumerate(vocab):
+            try:
+                embeddings[i] = vectors[word]
+                words_found += 1
+            except KeyError:
+                embeddings[i] = np.random.normal(scale=0.6, size=(emb_size,))
+    # in case the file type is not text - we'll assume it is a Gensim model, and we'll treat it as such
+    else:
+        emb_model = gensim.models.Word2Vec.load(emb_data_path)
+        embeddings = np.zeros((vocab_size, emb_size))
+        words_found = 0
+        for i, word in enumerate(vocab):
+            try:
+                embeddings[i] = emb_model.wv[word]
+                words_found += 1
+            except KeyError:
+                embeddings[i] = np.random.normal(scale=0.6, size=(emb_size,))
+    # in both options (text file of a Gensim model, we do the next 2 steps
+    return embeddings
