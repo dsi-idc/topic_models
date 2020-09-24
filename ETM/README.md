@@ -1,3 +1,17 @@
+# Avrahami notes
+This code is an arabic version of the original ETM paper. We have changed it a bit to work with arabic datasets for IDC purposes
+
+## running the code
+We have created a file called 'stops_arabic.txt' which is used for providing stop-words in arabic, you should have it
+under the 'scipts' folder
++ You should first run the 'data_intuview_arabic.py' code, to generate data for the algorithm
++ Next, you should run the 'main.py' code, with the settings for training (--mode train, --dataset intuview --data_path data/intuview and so on)
++ Lastly, you can run the 'main.py' code, with the settings for evaluation (e.g., mode==eval)
+Note that in eval mode, you need to define the location of the trained model. Here is an example of the full configuration parameters:
+--mode val --dataset intuview --data_path data/intuview --num_topics 20 --train_embeddings 1 --epochs 10 --load_from etm_intuview_K_20_Htheta_800_Optim_adam_Clip_0.0_ThetaAct_relu_Lr_0.005_Bsz_1000_RhoSize_300_trainEmbeddings_1
+
+
+# README of the original paper:
 # ETM
 
 This is code that accompanies the paper titled "Topic Modeling in Embedding Spaces" by Adji B. Dieng, Francisco J. R. Ruiz, and David M. Blei. (Arxiv link: https://arxiv.org/abs/1907.04907)
