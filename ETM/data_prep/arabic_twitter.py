@@ -6,6 +6,7 @@ from scipy import sparse
 from scipy.io import savemat, loadmat
 import os
 import re
+#import timestring
 
 
 class ArabicTwitterPreProcess(object):
@@ -217,6 +218,44 @@ class ArabicTwitterPreProcess(object):
             cur_docs = self._convert_intuview_dict_to_docs_list(intuview_data=intuview_data_as_dict)
             docs.extend(cur_docs)
         return docs
+
+    def _calculate_stats(self, data_path, verbose=True):
+        # find all files ending with .p (pickle files)
+        stats = dict()
+        data_file_names = [f for f in os.listdir(data_path) if re.match(r'.*.p', f)]
+        if len(data_file_names) == 0:
+            raise IOError(f"Not even a single pickle file has been found in {data_path}. Check again.")
+        intuview_data_as_dict_agg = dict()
+        for cur_file in data_file_names:
+            intuview_data_as_dict = pickle.load(open(os.path.join(data_path, cur_file), "rb"))
+            # docs is a list of threads
+            intuview_data_as_dict_agg.update(intuview_data_as_dict)
+        stats['tot_threads'] = len(intuview_data_as_dict_agg)
+        stats['primary_thread_unique_users'] = len(set([value['main_post']['user_id'] for key, value in intuview_data_as_dict_agg.items()]))
+        primary_post_users = [value['main_post']['user_id'] for key, value in intuview_data_as_dict_agg.items()]
+        responses_users = [response_values['user_id'] for key, value in intuview_data_as_dict_agg.items() for response_id, response_values in value['responses'].items()]
+        stats['overall_unique_users'] = len(set(primary_post_users + responses_users))
+
+        stats['tot_replies'] = sum([len(value['responses']) for key, value in intuview_data_as_dict_agg.items()])
+        stats['avg_replies'] = np.mean([len(value['responses']) for key, value in intuview_data_as_dict_agg.items()])
+        stats['std_replies'] = np.std([len(value['responses']) for key, value in intuview_data_as_dict_agg.items()])
+
+        stats['tot_retweets'] = sum([value['main_post']['retweets'] for key, value in intuview_data_as_dict_agg.items()])
+        stats['avg_retweets'] = np.mean([value['main_post']['retweets'] for key, value in intuview_data_as_dict_agg.items()])
+        stats['std_retweets'] = np.std([value['main_post']['retweets'] for key, value in intuview_data_as_dict_agg.items()])
+
+        # now dealing with the text
+        text_tokens_in_main = [value['main_post']['text'].split() for key, value in intuview_data_as_dict_agg.items()]
+        stats['primary_thread_avg_tokens'] = np.mean([len(cur_text) for cur_text in text_tokens_in_main])
+        stats['primary_thread_std_tokens'] = np.std([len(cur_text) for cur_text in text_tokens_in_main])
+        text_tokens_in_responses = [response_values['text'].split() for key, value in intuview_data_as_dict_agg.items() for response_id, response_values in value['responses'].items()]
+        stats['responses_avg_tokens'] = np.mean([len(cur_text) for cur_text in text_tokens_in_responses])
+        stats['responses_std_tokens'] = np.std([len(cur_text) for cur_text in text_tokens_in_responses])
+        #stats['min_date'] = min([timestring.Date(value['main_post']['created_at']).date for key, value in intuview_data_as_dict_agg.items()])
+        #stats['max_date'] = max([timestring.Date(value['main_post']['created_at']).date for key, value in intuview_data_as_dict_agg.items()])
+        if verbose:
+            print(stats)
+        return stats
 
     def save_obj(self, f_name):
         pickle.dump(self, open(os.path.join(self.config_dict['saving_models_path'][self.machine], f_name), "wb"))

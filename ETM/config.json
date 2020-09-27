@@ -3,7 +3,7 @@
   "description": "base ETM model - 24.9.2020",
   "random_seed": 1984,
   "raw_data_path": {
-    "AVRAHAMI-PC": "C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\\\pickles_for_etm_model"
+    "AVRAHAMI-PC": "C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\pickles_for_etm_model"
   },
   "data_path": {
     "AVRAHAMI-PC": "C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\ETM_data\\intuview"
@@ -20,7 +20,7 @@
   //name of corpus - can be 20ng or wikipedia or intuview
   "dataset": "intuview",
   //whether or not to prepare data for modeling. In case False - all matrices are expected to be found in "saving_data_path"
-  "prepare_data": "False",
+  "prepare_data": "True",
   //input batch size for training
   "batch_size": 10,
   "data_prep_params":{
@@ -48,7 +48,7 @@
     //'tanh, softplus, relu, rrelu, leakyrelu, elu, selu, glu)
     "theta_act": "relu",
     //whether to fix rho or train it
-    "train_embeddings": "False"
+    "train_embeddings": "True"
   },
   //optimization-related arguments
   "optimization_params": {
@@ -59,7 +59,7 @@
     //number of epochs to train...150 for 20ng 100 for others
     "epochs": 100,
     //train, eval or predict model
-    "mode": "eval",
+    "mode": "train",
     //choice of optimizer
     "optimizer": "adam",
     //dropout rate on encoder

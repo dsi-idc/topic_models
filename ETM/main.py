@@ -7,7 +7,6 @@ import os
 from torch import optim
 from etm import ETM
 from utils import prepare_embedding_matrix
-from googletrans import Translator
 import commentjson
 from data_prep.arabic_twitter import ArabicTwitterPreProcess
 
@@ -49,6 +48,7 @@ if __name__ == "__main__":
     # data prep (replaces the data_intuview_arabic.py file process) - files will be saved in the required location
     if eval(config_dict['prepare_data']):
         preprocess_obj = ArabicTwitterPreProcess(config_dict=config_dict, machine=machine)
+        #preprocess_obj._calculate_stats(data_path=config_dict['raw_data_path'][machine])
         preprocess_obj.fit_transform(data_path=config_dict['raw_data_path'][machine], verbose=True)
         if eval(config_dict['data_prep_params']['save_model']):
             preprocess_model_f_name = config_dict['data_prep_params']['saving_model_f_name'] + '.p'
