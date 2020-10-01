@@ -1,7 +1,7 @@
 {
-  "model_version": "0.1",
-  "description": "base ETM model - 24.9.2020",
-  "random_seed": 1984,
+  "model_version": "0.5",
+  "description": "base ETM model - 30.9.2020",
+  "random_seed": 2019,
   "raw_data_path": {
     "AVRAHAMI-PC": "C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\pickles_for_etm_model"
   },
@@ -20,17 +20,17 @@
   //name of corpus - can be 20ng or wikipedia or intuview
   "dataset": "intuview",
   //whether or not to prepare data for modeling. In case False - all matrices are expected to be found in "saving_data_path"
-  "prepare_data": "True",
+  "prepare_data": "False",
   //input batch size for training
   "batch_size": 10,
   "data_prep_params":{
-    "min_df":  0.01,
+    "min_df":  0.001,
     "max_df": 0.7,
     "stop_words_f_name": "stops_arabic.txt",
     //whether to save the pre-process obj. Most relevant when we want to run a "predict" function later
     "save_model": "True",
     //relevant only in case "save_model" is set to True, or when we run 'predict' option. SHOULD NOT include the .p or .pickle at the end
-    "saving_model_f_name": "pre_process_obj_24_9_2020",
+    "saving_model_f_name": "pre_process_obj_30_9_2020",
     "raw_data_path": {
       "AVRAHAMI-PC": "C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\pickles_for_etm_model"
     }
@@ -38,7 +38,7 @@
   //model-related arguments
   "model_params": {
     //number of topics, default: 50
-    "num_topics": 50,
+    "num_topics": 30,
     //dimension of rho
     "rho_size": 300,
     //dimension of embeddings
@@ -57,9 +57,9 @@
     //divide learning rate by this...
     "lr_factor": 4.0,
     //number of epochs to train...150 for 20ng 100 for others
-    "epochs": 100,
+    "epochs": 50,
     //train, eval or predict model
-    "mode": "train",
+    "mode": "eval",
     //choice of optimizer
     "optimizer": "adam",
     //dropout rate on encoder
@@ -86,7 +86,7 @@
     //input batch size for evaluation
     "eval_batch_size": 1000,
     //the name of the ckpt to eval from, including the explicit name of the model
-    "load_from": "C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\ETM_results\\etm_intuview_K_50_Htheta_800_Optim_adam_Clip_0.0_ThetaAct_relu_Lr_0.005_Bsz_10_RhoSize_300_trainEmbeddings_False",
+    "load_from": "C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\ETM_results\\etm_intuview_K_30_Htheta_800_Optim_adam_Clip_0.0_ThetaAct_relu_Lr_0.005_Bsz_1000_RhoSize_300_trainEmbeddings_0",
     //whether to compute topic coherence or not
     "tc": 0,
     //whether to compute topic diversity or not

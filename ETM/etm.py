@@ -325,7 +325,7 @@ class ETM(nn.Module):
             for k in range(self.num_topics):  # topic_indices:
                 gamma = beta[k]
                 top_words = \
-                    list(gamma.cpu().numpy().argsort()[-words_amount + 1:][::-1])
+                    list(gamma.detach().cpu().numpy().argsort()[-words_amount + 1:][::-1])
                 topic_words = [vocab[a] for a in top_words]
                 topic_words_en = list()
                 for cur_word in topic_words:

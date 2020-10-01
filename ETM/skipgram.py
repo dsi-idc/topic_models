@@ -19,6 +19,7 @@ parser.add_argument('--iters', type=int, default=50, help='number of iterationst
 
 args = parser.parse_args()
 
+
 # Class for a memory-friendly iterator over the dataset
 class MySentences(object):
     def __init__(self, filename):

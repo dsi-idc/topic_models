@@ -142,8 +142,10 @@ if __name__ == "__main__":
         model.eval()
 
         print('Visualizing model quality before training...')
-        # visualize(model)
-        model.visualize(vocab=vocab)
+        #model.visualize(vocab=vocab)
+        etm_model.eval()
+        etm_model.print_words_per_topic(words_amount=config_dict['evaluation_params']['num_words'],
+                                        vocab=vocab, lang='en')
         with torch.no_grad():
             # get document completion perplexities
             test_ppl = model.evaluate(source='test', test_1_tokens=test_1_tokens, test_1_counts=test_1_counts,

@@ -10,6 +10,9 @@ import re
 
 
 class ArabicTwitterPreProcess(object):
+    """
+    
+    """
     def __init__(self, config_dict, machine='AVRAHAMI-PC'):
         self.config_dict = config_dict
         self.machine = machine
