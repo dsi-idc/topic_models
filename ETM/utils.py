@@ -1,17 +1,31 @@
+# Author: Avrahami (abraham.israeli@post.idc.ac.il), last update: 1.10.2020
 import numpy as np
 import mimetypes
 import gensim
 
 
-def get_topic_diversity(beta, topk):
+def get_topic_diversity(beta, topk, verbose: True):
+    """
+    gets a measure about how diverse are the topics
+    :param beta: torch of size (topics X vocab_size)
+        the distribution over the vocab of each topic
+    :param topk: int
+        number of words to take from each topic
+    :param verbose: bool, default: True
+        whether to print on screen the diversity
+    :return: float
+        the diversity value
+    """
     num_topics = beta.shape[0]
     list_w = np.zeros((num_topics, topk))
     for k in range(num_topics):
         idx = beta[k,:].argsort()[-topk:][::-1]
         list_w[k,:] = idx
     n_unique = len(np.unique(list_w))
-    TD = n_unique / (topk * num_topics)
-    print('Topic diveristy is: {}'.format(TD))
+    td = n_unique / (topk * num_topics)
+    if verbose:
+        print(f'Topic diversity is: {td}')
+    return td
 
 
 def get_document_frequency(data, wi, wj=None):
@@ -19,7 +33,7 @@ def get_document_frequency(data, wi, wj=None):
         D_wi = 0
         for l in range(len(data)):
             doc = data[l].squeeze(0)
-            if len(doc) == 1: 
+            if len(doc) == 1:
                 continue
             else:
                 doc = doc.squeeze()
@@ -30,7 +44,7 @@ def get_document_frequency(data, wi, wj=None):
     D_wi_wj = 0
     for l in range(len(data)):
         doc = data[l].squeeze(0)
-        if len(doc) == 1: 
+        if len(doc) == 1:
             doc = [doc.squeeze()]
         else:
             doc = doc.squeeze()
@@ -38,11 +52,24 @@ def get_document_frequency(data, wi, wj=None):
             D_wj += 1
             if wi in doc:
                 D_wi_wj += 1
-    return D_wj, D_wi_wj 
+    return D_wj, D_wi_wj
 
 
-def get_topic_coherence(beta, data, vocab):
-    D = len(data) ## number of docs...data is list of documents
+def get_topic_coherence(beta, data, vocab, verbose=True):
+    """
+
+    :param beta: torch of size (topics X vocab_size)
+        the distribution over the vocab of each topic
+    :param data: list
+        list of the documents
+    :param vocab: list
+        vocabulary list
+    :param verbose: bool, default: True
+        whether to print on screen the coherence
+    :return: int
+        the coherence value
+    """
+    D = len(data)
     print('D: ', D)
     TC = []
     num_topics = len(beta)
@@ -72,10 +99,12 @@ def get_topic_coherence(beta, data, vocab):
             # update TC_k
             TC_k += tmp 
         TC.append(TC_k)
-    print('counter: ', counter)
-    print('num topics: ', len(TC))
-    TC = np.mean(TC) / counter
-    print('Topic coherence is: {}'.format(TC))
+    tc = np.mean(TC) / counter
+    if verbose:
+        print('counter: ', counter)
+        print('num topics: ', len(TC))
+        print('Topic coherence is: {}'.format(tc))
+    return tc
 
 
 def nearest_neighbors(word, embeddings, vocab):
@@ -97,6 +126,21 @@ def nearest_neighbors(word, embeddings, vocab):
 
 
 def prepare_embedding_matrix(emb_data_path, emb_size, vocab, random_seed=1984):
+    """
+    convert an embeddings model into a numpy array. The embeddings model can be a genism one or a txt file with
+    all vector values per each word
+    :param emb_data_path: str
+        the full path to the embeddings model
+    :param emb_size: int
+        size of the embeddings
+    :param vocab: list
+        vocabulary list. It is required since if some words do not appear in the embeddings model, we fill them
+        up with a random value
+    :param random_seed: int
+        a random seed value to be used
+    :return: numpy array (of size: vocb_size X emb_size)
+        the numpy array of the embeddings
+    """
     vocab_size = len(vocab)
     mime = mimetypes.guess_type(emb_data_path)
     np.random.seed(random_seed)

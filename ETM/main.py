@@ -1,3 +1,4 @@
+# Author: Avrahami (abraham.israeli@post.idc.ac.il), last update: 1.10.2020
 #/usr/bin/python
 from __future__ import print_function
 import data
@@ -142,7 +143,6 @@ if __name__ == "__main__":
         model.eval()
 
         print('Visualizing model quality before training...')
-        #model.visualize(vocab=vocab)
         etm_model.eval()
         etm_model.print_words_per_topic(words_amount=config_dict['evaluation_params']['num_words'],
                                         vocab=vocab, lang='en')
@@ -180,6 +180,8 @@ if __name__ == "__main__":
             etm_model.print_words_per_topic(words_amount=config_dict['evaluation_params']['num_words'], vocab=vocab)
             etm_model.print_words_per_topic(words_amount=config_dict['evaluation_params']['num_words'],
                                             vocab=vocab, lang='en')
+
+
     """
     # in order to see the embeddings of the topics: m.alphas.weight
     # in order to see the embeddings of the words: m.rho.weight

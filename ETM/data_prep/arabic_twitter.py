@@ -1,4 +1,5 @@
-# same code as in data_nyt.py, but for handeling arabic data
+# Author: Avrahami (abraham.israeli@post.idc.ac.il), last update: 1.10.2020
+
 from sklearn.feature_extraction.text import CountVectorizer
 import numpy as np
 import pickle
@@ -6,12 +7,30 @@ from scipy import sparse
 from scipy.io import savemat, loadmat
 import os
 import re
-#import timestring
 
 
 class ArabicTwitterPreProcess(object):
     """
-    
+    Class for doing all pre-processes steps as part of the ETM model (topic models)
+
+    Parameters
+    ----------
+    config_dict : dict
+        a dictionary with all configurations. This is the main configuration dict of the run, usually created as
+        a json file and read into the main function
+    machine: str. Default: 'AVRAHAMI-PC'
+        the name of the machine to work on
+
+    Attributes
+    ----------
+    cvectorizer_obj: obj of type count-vectorizer
+        the sklearn object of a CountVectorizer which was created along the process
+    vocab: list
+        list of all vocabulary words in the corpus created along the process
+    word2id: dict
+        words to ids as created by the process
+    id2word: dict
+        ids of the words mapped to words
     """
     def __init__(self, config_dict, machine='AVRAHAMI-PC'):
         self.config_dict = config_dict
@@ -22,6 +41,16 @@ class ArabicTwitterPreProcess(object):
         self.id2word = None
 
     def fit_transform(self, data_path, verbose=True):
+        """
+        a function to fit the data and then transform it. Idea taken from sklearn functions which fit a model and then
+        allow to transform it right after
+        :param data_path: str
+            the exact path where the data files are located
+        :param verbose: bool
+            whether to print information to screen or not
+        :return: None
+            all is saved under the object itself
+        """
         # Read stopwords, taken from here - https://github.com/mohataher/arabic-stop-words/blob/master/list.txt
         with open('stops_arabic.txt', 'r', encoding='utf-8') as f:
             stops = f.read().split('\n')
@@ -188,6 +217,15 @@ class ArabicTwitterPreProcess(object):
             print(f'Data is ready !! All data has been saved in {path_save}')
 
     def transform(self, data_path):
+        """
+        a function which gets new data and transform it the way it is needed. This is according to the parameters
+        learned in the fit function
+        :param data_path: str
+            the exact path where the data files are located
+        :return: tuple (of size two)
+            first is the tokens which passes the transform (a numpy array)
+            second is the counts of those tokens (a numpy array)
+        """
         docs = self._load_data(data_path=data_path)
         n_docs_new_val = len(docs)
         docs_new_val = [[self.word2id[w] for w in docs[idx_d].split() if w in self.word2id] for idx_d in range(n_docs_new_val)]
@@ -210,6 +248,13 @@ class ArabicTwitterPreProcess(object):
         return tokens, counts
 
     def _load_data(self, data_path):
+        """
+        internal function of the class to gather data from a specific location
+        :param data_path: str
+            the exact path where the data files are located
+        :return: list
+            list of the documents loaded
+        """
         # find all files ending with .p (pickle files)
         data_file_names = [f for f in os.listdir(data_path) if re.match(r'.*.p', f)]
         if len(data_file_names) == 0:
@@ -223,6 +268,15 @@ class ArabicTwitterPreProcess(object):
         return docs
 
     def _calculate_stats(self, data_path, verbose=True):
+        """
+        an internal function to calculate statistics over the file given (e.g., length of text in main thread)
+        :param data_path: str
+            the exact path where the data files are located
+        :param verbose: bool
+            whether to print information to screen or not
+        :return: dict
+            a dictionary with all statistics
+        """
         # find all files ending with .p (pickle files)
         stats = dict()
         data_file_names = [f for f in os.listdir(data_path) if re.match(r'.*.p', f)]
@@ -261,15 +315,37 @@ class ArabicTwitterPreProcess(object):
         return stats
 
     def save_obj(self, f_name):
+        """
+        a function which saves as a pickle file the object created
+        :param f_name: str
+            the file name to save the object under
+        :return: None
+        """
         pickle.dump(self, open(os.path.join(self.config_dict['saving_models_path'][self.machine], f_name), "wb"))
 
     @staticmethod
     def load_obj(f_path, f_name):
+        """
+        a function which loads a fitted model into the env
+        :param f_path: str
+            path to the pickle file
+        :param f_name: str
+            file name (incliding the suffix, e.g., .p)
+        :return: obj
+            the pre-process object (fitted alread)
+        """
         pre_process_obj = pickle.load(open(os.path.join(f_path, f_name), "rb"))
         return pre_process_obj
 
     @staticmethod
     def _convert_intuview_dict_to_docs_list(intuview_data):
+        """
+        internal function to convert a pickle file of intuview data into list of textx
+        :param intuview_data: dict
+            dictionary with the full intuview data
+        :return: list
+            a list with all "documents" (pure text data)
+        """
         docs_list = list()
         for loop_idx, (main_post_id, main_post_values) in enumerate(intuview_data.items()):
             cur_thread_full_text = main_post_values['main_post']['text']
@@ -279,14 +355,6 @@ class ArabicTwitterPreProcess(object):
                 cur_thread_full_text += '. ' + cur_child_text
             docs_list.append(cur_thread_full_text)
         return docs_list
-
-    @staticmethod
-    def create_list_words(in_docs):
-        return [x for y in in_docs for x in y]
-
-    @staticmethod
-    def remove_empty(in_docs):
-        return [doc for doc in in_docs if doc != []]
 
     @staticmethod
     def create_doc_indices(in_docs):
@@ -302,7 +370,33 @@ class ArabicTwitterPreProcess(object):
         return [int(x) for y in aux for x in y]
 
     @staticmethod
+    def create_list_words(in_docs):
+        """
+        creates list of words of of list of lists
+        """
+        return [x for y in in_docs for x in y]
+
+    @staticmethod
+    def remove_empty(in_docs):
+        """
+        removes empty documents
+        """
+        return [doc for doc in in_docs if doc != []]
+
+    @staticmethod
     def create_bow(doc_indices, words, n_docs, vocab_size):
+        """
+        created bag-of-words out of a given doc indices
+        :param doc_indices: list
+            list of the indices in the documents
+        :param words: list
+            the list of existing words
+        :param n_docs: int
+            length of documents (how many are there
+        :param vocab_size: int
+            the size of the vocabulary
+        :return:
+        """
         return sparse.coo_matrix(([1] * len(doc_indices), (doc_indices, words)), shape=(n_docs, vocab_size)).tocsr()
 
     @staticmethod
