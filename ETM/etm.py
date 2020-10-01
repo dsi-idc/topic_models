@@ -392,7 +392,7 @@ class ETM(nn.Module):
             cur_train_loss = self.train_single_epoch(epoch=epoch, optimizer=optimizer, train_tokens=train_tokens,
                                                      train_counts=train_counts)
             all_train_loss.append(cur_train_loss)
-            val_ppl = self.evaluate(source='val', test_1_tokens=test_1_tokens, test_1_counts=test_1_counts,
+            val_ppl = self.evaluate(test_1_tokens=test_1_tokens, test_1_counts=test_1_counts,
                                     test_2_tokens=test_2_tokens, test_2_counts=test_2_counts,
                                     train_tokens=train_tokens, vocab=vocab, tc=self.config_dict['evaluation_params']['tc'],
                                     td=self.config_dict['evaluation_params']['td'])
@@ -415,7 +415,7 @@ class ETM(nn.Module):
         with open(ckpt, 'rb') as f:
             model = torch.load(f)
         model = model.to(device)
-        val_ppl = model.evaluate(source='val', test_1_tokens=test_1_tokens, test_1_counts=test_1_counts,
+        val_ppl = model.evaluate(test_1_tokens=test_1_tokens, test_1_counts=test_1_counts,
                                  test_2_tokens=test_2_tokens, test_2_counts=test_2_counts,
                                  train_tokens=train_tokens, vocab=vocab, tc=self.config_dict['evaluation_params']['tc'],
                                  td=self.config_dict['evaluation_params']['td'])

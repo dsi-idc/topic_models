@@ -20,7 +20,7 @@
   //name of corpus - can be 20ng or wikipedia or intuview
   "dataset": "intuview",
   //whether or not to prepare data for modeling. In case False - all matrices are expected to be found in "saving_data_path"
-  "prepare_data": "False",
+  "prepare_data": "True",
   //input batch size for training
   "batch_size": 20,
   "data_prep_params":{
