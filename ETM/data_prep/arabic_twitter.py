@@ -55,7 +55,15 @@ class ArabicTwitterPreProcess(object):
         with open('stops_arabic.txt', 'r', encoding='utf-8') as f:
             stops = f.read().split('\n')
 
-        docs = self._load_data(data_path=data_path)
+        #docs = self._load_data(data_path=data_path)
+        #### SPECIAL CASE HERE - loading WIKIPEDIA data!! ####################
+        data_path = 'C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\arabic_wiki_dataset'
+        data_file_name = 'concise_arabic_wiki_data_2_9_2020.p'
+        wiki_data_as_list = pickle.load(open(os.path.join(data_path, data_file_name), "rb"))
+        # docs is a list of threads
+        docs = [cur_wiki_page['content'] for cur_wiki_page in wiki_data_as_list]
+        #### END OF SPECIAL CASE ####################
+
         # Create count vectorizer
         cvectorizer = CountVectorizer(min_df=self.config_dict['data_prep_params']['min_df'],
                                       max_df=self.config_dict['data_prep_params']['max_df'],
@@ -226,7 +234,15 @@ class ArabicTwitterPreProcess(object):
             first is the tokens which passes the transform (a numpy array)
             second is the counts of those tokens (a numpy array)
         """
-        docs = self._load_data(data_path=data_path)
+        #docs = self._load_data(data_path=data_path)
+        #### SPECIAL CASE HERE - loading WIKIPEDIA data!! ####################
+        data_path = 'C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\arabic_wiki_dataset'
+        data_file_name = 'concise_arabic_wiki_data_2_9_2020.p'
+        wiki_data_as_list = pickle.load(open(os.path.join(data_path, data_file_name), "rb"))
+        # docs is a list of threads
+        docs = [cur_wiki_page['content'] for cur_wiki_page in wiki_data_as_list]
+        #### END OF SPECIAL CASE ####################
+
         n_docs_new_val = len(docs)
         docs_new_val = [[self.word2id[w] for w in docs[idx_d].split() if w in self.word2id] for idx_d in range(n_docs_new_val)]
         docs_new_val = self.remove_empty(docs_new_val)

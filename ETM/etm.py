@@ -387,7 +387,7 @@ class ETM(nn.Module):
         # defining variables for saving results
         all_val_ppls = []
         all_train_loss = []
-        #iterating over the epochs
+        # iterating over the epochs
         for epoch in range(1, self.config_dict['optimization_params']['epochs']):
             cur_train_loss = self.train_single_epoch(epoch=epoch, optimizer=optimizer, train_tokens=train_tokens,
                                                      train_counts=train_counts)
@@ -412,13 +412,14 @@ class ETM(nn.Module):
             if epoch % self.config_dict['evaluation_params']['visualize_every'] == 0:
                 pass
             all_val_ppls.append(val_ppl)
-        with open(ckpt, 'rb') as f:
-            model = torch.load(f)
-        model = model.to(device)
-        val_ppl = model.evaluate(test_1_tokens=test_1_tokens, test_1_counts=test_1_counts,
-                                 test_2_tokens=test_2_tokens, test_2_counts=test_2_counts,
-                                 train_tokens=train_tokens, vocab=vocab, tc=self.config_dict['evaluation_params']['tc'],
-                                 td=self.config_dict['evaluation_params']['td'])
+        # after all epochs, we load the best model created so far (if analysis needs to be done)
+        #with open(ckpt, 'rb') as f:
+        #    model = torch.load(f)
+        #model = model.to(device)
+        #val_ppl = model.evaluate(test_1_tokens=test_1_tokens, test_1_counts=test_1_counts,
+        #                         test_2_tokens=test_2_tokens, test_2_counts=test_2_counts,
+        #                         train_tokens=train_tokens, vocab=vocab, tc=self.config_dict['evaluation_params']['tc'],
+        #                         td=self.config_dict['evaluation_params']['td'])
         results_df = pd.DataFrame({'val_ppls': all_val_ppls, 'train_loss': all_train_loss})
         # save results to the disc as a csv
         results_df.to_csv(os.path.join(self.config_dict['saving_models_path'][self.machine], "results_table.csv"))

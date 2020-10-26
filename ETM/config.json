@@ -1,6 +1,6 @@
 {
   "model_version": "0.6",
-  "description": "base ETM model - 30.9.2020",
+  "description": "testing the ETM model. 19.10",
   "random_seed": 2019,
   "raw_data_path": {
     "AVRAHAMI-PC": "C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\pickles_for_etm_model"
@@ -22,15 +22,15 @@
   //whether or not to prepare data for modeling. In case False - all matrices are expected to be found in "saving_data_path"
   "prepare_data": "True",
   //input batch size for training
-  "batch_size": 20,
+  "batch_size": 1000,
   "data_prep_params":{
-    "min_df":  0.01,
-    "max_df": 0.7,
+    "min_df":  0.001,
+    "max_df": 0.2,
     "stop_words_f_name": "stops_arabic.txt",
     //whether to save the pre-process obj. Most relevant when we want to run a "predict" function later
     "save_model": "True",
     //relevant only in case "save_model" is set to True, or when we run 'predict' option. SHOULD NOT include the .p or .pickle at the end
-    "saving_model_f_name": "pre_process_obj_30_9_2020",
+    "saving_model_f_name": "pre_process_obj_19_10_2020",
     "raw_data_path": {
       "AVRAHAMI-PC": "C:\\Users\\avrahami\\Documents\\Private\\IDC\\influencer_influenced_project\\topic_models\\pickles_for_etm_model"
     }
@@ -52,14 +52,14 @@
   },
   //optimization-related arguments
   "optimization_params": {
+    //train, eval or predict model
+    "mode": "train",
     //learning rate
     "lr": 0.005,
     //divide learning rate by this...
     "lr_factor": 4.0,
     //number of epochs to train...150 for 20ng 100 for others
-    "epochs": 50,
-    //train, eval or predict model
-    "mode": "train",
+    "epochs": 40,
     //choice of optimizer
     "optimizer": "adam",
     //dropout rate on encoder

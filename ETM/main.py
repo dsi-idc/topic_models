@@ -115,17 +115,27 @@ if __name__ == "__main__":
                                                      config_dict['model_params']['rho_size'],
                                                      config_dict['model_params']['train_embeddings']))
 
-    # define model and optimizer
-    etm_model = ETM(config_dict=config_dict, machine=machine, embeddings=embeddings)
-    print('model: {}'.format(etm_model))
-    optimizer = _set_optimizer()
-
     if config_dict['optimization_params']['mode'] == 'train':
+        # define model and optimizer
+        etm_model = ETM(config_dict=config_dict, machine=machine, embeddings=embeddings)
+        print('model: {}'.format(etm_model))
+        optimizer = _set_optimizer()
         etm_model.fit(optimizer=optimizer, train_tokens=train_tokens, train_counts=train_counts,
                       test_1_tokens=test_1_tokens, test_1_counts=test_1_counts, test_2_tokens=test_2_tokens,
                       test_2_counts=test_2_counts, vocab=vocab, ckpt=ckpt)
-
+        print('Visualizing model quality after training...')
+        with open(ckpt, 'rb') as f:
+            etm_model = torch.load(f)
+        etm_model = etm_model.to(device)
+        etm_model.eval()
+        etm_model.print_words_per_topic(words_amount=config_dict['evaluation_params']['num_words'],
+                                        vocab=vocab, lang='en')
     elif config_dict['optimization_params']['mode'] == 'predict':
+        with open(ckpt, 'rb') as f:
+            etm_model = torch.load(f)
+        etm_model = etm_model.to(device)
+        etm_model.eval()
+
         preprocess_model_f_name = config_dict['data_prep_params']['saving_model_f_name'] + '.p'
         preprocess_obj = ArabicTwitterPreProcess.load_obj(f_path=config_dict['saving_models_path'][machine],
                                                           f_name=preprocess_model_f_name)
@@ -138,20 +148,21 @@ if __name__ == "__main__":
 
     elif config_dict['optimization_params']['mode'] == 'eval':
         with open(ckpt, 'rb') as f:
-            model = torch.load(f)
-        model = model.to(device)
-        model.eval()
+            etm_model = torch.load(f)
+        etm_model = etm_model.to(device)
+        etm_model.eval()
 
-        print('Visualizing model quality before training...')
+        print('Visualizing model quality after training...')
         etm_model.eval()
         etm_model.print_words_per_topic(words_amount=config_dict['evaluation_params']['num_words'],
                                         vocab=vocab, lang='en')
         with torch.no_grad():
             # get document completion perplexities
-            test_ppl = model.evaluate(source='test', test_1_tokens=test_1_tokens, test_1_counts=test_1_counts,
-                                      test_2_tokens=test_2_tokens, test_2_counts=test_2_counts,
-                                      train_tokens=train_tokens, vocab=vocab, tc=config_dict['evaluation_params']['tc'],
-                                      td=config_dict['evaluation_params']['td'])
+            test_ppl = etm_model.evaluate(source='test', test_1_tokens=test_1_tokens, test_1_counts=test_1_counts,
+                                          test_2_tokens=test_2_tokens, test_2_counts=test_2_counts,
+                                          train_tokens=train_tokens, vocab=vocab,
+                                          tc=config_dict['evaluation_params']['tc'],
+                                          td=config_dict['evaluation_params']['td'])
 
             # get most used topics
             indices = torch.tensor(range(config_dict['num_docs_train']))
@@ -167,7 +178,7 @@ if __name__ == "__main__":
                     normalized_data_batch = data_batch / sums
                 else:
                     normalized_data_batch = data_batch
-                theta, _ = model.get_theta(normalized_data_batch)
+                theta, _ = etm_model.get_theta(normalized_data_batch)
                 thetaAvg += theta.sum(0).unsqueeze(0) / config_dict['num_docs_train']
                 weighed_theta = sums * theta
                 thetaWeightedAvg += weighed_theta.sum(0).unsqueeze(0)
